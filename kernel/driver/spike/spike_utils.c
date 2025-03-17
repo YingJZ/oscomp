@@ -12,6 +12,8 @@
 #include <spike_interface/spike_utils.h>
 #include <spike_interface/spike_file.h>
 
+#include <qemu/sbi.h>
+
 //=============    encapsulating htif syscalls, invoking Spike functions    =============
 long frontend_syscall(long n, __uint64_t a0, __uint64_t a1, __uint64_t a2, __uint64_t a3, __uint64_t a4,
       __uint64_t a5, __uint64_t a6) {
@@ -49,7 +51,10 @@ void vprintk(const char* s, va_list vl) {
   char out[256];
   int res = vsnprintf(out, sizeof(out), s, vl);
   //you need spike_file_init before this call
-  spike_file_write(stderr, out, res < sizeof(out) ? res : sizeof(out));
+  // spike_file_write(stderr, out, res < sizeof(out) ? res : sizeof(out));
+	for (int i = 0; i < res; i++) { // TODO: 临时实现（最终需要迁移到 uart）
+		SBI_PUTCHAR(out[i]);
+	}
 }
 
 void printk(const char* s, ...) {
@@ -62,7 +67,7 @@ void printk(const char* s, ...) {
 }
 
 void putstring(const char* s) {
-  while (*s) mcall_console_putchar(*s++);
+  while (*s) SBI_PUTCHAR(*s++); // TODO: 临时实现（最终需要迁移到 uart）
 }
 
 void vprintm(const char* s, va_list vl) {
@@ -71,6 +76,8 @@ void vprintm(const char* s, va_list vl) {
   putstring(buf);
 }
 
+// 在 QEMU 中调用这个 sprint 会发生报错！
+// 因为其最终会调用 HTIFSYS_write，而 QEMU 并没有实现这个系统调用。
 void sprint(const char* s, ...) {
   va_list vl;
   va_start(vl, s);

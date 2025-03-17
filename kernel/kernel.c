@@ -20,7 +20,7 @@
 #include <util/spinlock.h>
 #include <util/string.h>
 
-#include <spike_interface/spike_utils.h>
+#include <spike_interface/spike_utils.h> // 完全迁移到QEMU后移除
 
 static void kernel_vm_init(void) {
   sprint("kernel_vm_init: start\n");

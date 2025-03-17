@@ -7,6 +7,8 @@
 #include <util/sync_utils.h>
 #include <spike_interface/spike_utils.h>
 #include <kernel/types.h>
+#include <qemu/sbi.h>
+#include <kernel/dev/dtb.h>
 
 //
 // global variables are placed in the .data section.
@@ -41,49 +43,53 @@ riscv_regs g_itrframe;
 // in Intel series CPUs. it records the details of devices and memory of the
 // platform simulated using Spike.
 //
-static void init_dtb(uint64 dtb) {
-  // defined in spike_interface/spike_htif.c, enabling Host-Target InterFace
-  // (HTIF)
-  query_htif(dtb);
-  if (htif)
-    sprint("HTIF is available!\r\n");
+// 这个函数调用 spike 的相关函数初始化 dtb, 但是在我们迁移到 QEMU 后, 
+// 这个函数的功能由 dtb.c 中的 parseDtb() 函数实现
+//
+// static void init_dtb(uint64 dtb) { 
+// 	sprint("init_dtb: THIS FUNCTION SHOULD NOT BE CALLED UNDER QEMU!\n");
+//   // defined in spike_interface/spike_htif.c, enabling Host-Target InterFace
+//   // (HTIF)
+//   query_htif(dtb);
+//   if (htif)
+//     sprint("HTIF is available!\r\n");
 
-  // defined in spike_interface/spike_memory.c, obtain information about
-  // emulated memory
-  query_mem(dtb);
-  sprint("(Emulated) memory size: %ld MB\n", spike_mem_size >> 20);
-}
+//   // defined in spike_interface/spike_memory.c, obtain information about
+//   // emulated memory
+//   query_mem(dtb);
+//   sprint("(Emulated) memory size: %ld MB\n", spike_mem_size >> 20);
+// }
 
 //
 // delegate (almost all) interrupts and most exceptions to S-mode.
 // after delegation, syscalls will handled by the PKE OS kernel running in
 // S-mode.
 //
-static void delegate_traps() {
-  // supports_extension macro is defined in kernel/riscv.h
-  if (!supports_extension('S')) {
-    // confirm that our processor supports supervisor mode. abort if it does
-    // not.
-    sprint("S mode is not supported.\n");
-    return;
-  }
+// static void delegate_traps() {
+//   // supports_extension macro is defined in kernel/riscv.h
+//   if (!supports_extension('S')) {
+//     // confirm that our processor supports supervisor mode. abort if it does
+//     // not.
+//     sprint("S mode is not supported.\n");
+//     return;
+//   }
 
-  // macros used in following two statements are defined in kernel/riscv.h
-  uintptr_t interrupts = MIP_SSIP | MIP_STIP | MIP_SEIP;
-  uintptr_t exceptions =
-      (1U << CAUSE_MISALIGNED_FETCH) | (1U << CAUSE_FETCH_PAGE_FAULT) |
-      (1U << CAUSE_BREAKPOINT) | (1U << CAUSE_LOAD_PAGE_FAULT) |
-      (1U << CAUSE_STORE_PAGE_FAULT) | (1U << CAUSE_USER_ECALL);
+//   // macros used in following two statements are defined in kernel/riscv.h
+//   uintptr_t interrupts = MIP_SSIP | MIP_STIP | MIP_SEIP;
+//   uintptr_t exceptions =
+//       (1U << CAUSE_MISALIGNED_FETCH) | (1U << CAUSE_FETCH_PAGE_FAULT) |
+//       (1U << CAUSE_BREAKPOINT) | (1U << CAUSE_LOAD_PAGE_FAULT) |
+//       (1U << CAUSE_STORE_PAGE_FAULT) | (1U << CAUSE_USER_ECALL);
 
-  // writes 64-bit values (interrupts and exceptions) to 'mideleg' and 'medeleg'
-  // (two priviledged registers of RV64G machine) respectively.
-  //
-  // write_csr and read_csr are macros defined in kernel/riscv.h
-  write_csr(mideleg, interrupts);
-  write_csr(medeleg, exceptions);
-  assert(read_csr(mideleg) == interrupts);
-  assert(read_csr(medeleg) == exceptions);
-}
+//   // writes 64-bit values (interrupts and exceptions) to 'mideleg' and 'medeleg'
+//   // (two priviledged registers of RV64G machine) respectively.
+//   //
+//   // write_csr and read_csr are macros defined in kernel/riscv.h
+//   write_csr(mideleg, interrupts);
+//   write_csr(medeleg, exceptions);
+//   assert(read_csr(mideleg) == interrupts);
+//   assert(read_csr(medeleg) == exceptions);
+// }
 
 //
 // enabling timer interrupt (irq) in Machine mode. added @lab1_3
@@ -98,44 +104,58 @@ void timerinit(uintptr_t hartid) {
 
 //
 // m_start: machine mode C entry point.
+// ⚠注意：在 QEMU 中，这个函数实际在 S 态执行！！！
 //
+
+void start_trap() {
+	while (1);
+}
 
 volatile static int counter = 0;
 void m_start(uintptr_t hartid, uintptr_t dtb) {
+	SBI_PUTCHAR('M');
+	SBI_PUTCHAR('_');
+	SBI_PUTCHAR('S');
+	SBI_PUTCHAR('T');
+	SBI_PUTCHAR('A');
+	SBI_PUTCHAR('R');
+	SBI_PUTCHAR('T');
+	SBI_PUTCHAR('\n');
+
   if (hartid == 0) {
-    spike_file_init();
-    init_dtb(dtb);
+    // spike_file_init(); //TODO: 将文件系统迁移到 QEMU
+    // init_dtb(dtb); 
+		parseDtb(dtb);
   }
   if(NCPU > 1)
    sync_barrier(&counter, NCPU);
   // 这一个函数是用来同步不同核心的任务的。
-  sprint("In m_start, hartid:%d\n", hartid);
-  write_tp(hartid);
 
   // save the address of trap frame for interrupt in M mode to "mscratch". added
   // @lab1_2
-  write_csr(mscratch, &g_itrframe);
+  // write_csr(mscratch, &g_itrframe); 
 
   // set previous privilege mode to S (Supervisor), and will enter S mode after
   // 'mret' write_csr is a macro defined in kernel/riscv.h
-  write_csr(mstatus, ((read_csr(mstatus) & ~MSTATUS_MPP_MASK) | MSTATUS_MPP_S));
+  // write_csr(mstatus, ((read_csr(mstatus) & ~MSTATUS_MPP_MASK) | MSTATUS_MPP_S));
 
   // set M Exception Program Counter to sstart, for mret (requires gcc
   // -mcmodel=medany)
-  write_csr(mepc, (uint64)s_start);
+  // write_csr(mepc, (uint64)s_start);
 
   // setup trap handling vector for machine mode. added @lab1_2
-  write_csr(mtvec, (uint64)mtrapvec);
+  // write_csr(mtvec, (uint64)mtrapvec);
 
   // enable machine-mode interrupts. added @lab1_3
-  write_csr(mstatus, read_csr(mstatus) | MSTATUS_MIE);
+  // write_csr(mstatus, read_csr(mstatus) | MSTATUS_MIE);
 
   // delegate all interrupts and exceptions to supervisor mode.
   // delegate_traps() is defined above.
-  delegate_traps();
+  // delegate_traps();
 
   // also enables interrupt handling in supervisor mode. added @lab1_3
-  write_csr(sie, read_csr(sie) | SIE_SEIE | SIE_STIE | SIE_SSIE);
+  // write_csr(sie, read_csr(sie) | SIE_SEIE | SIE_STIE | SIE_SSIE); 
+	write_csr(sie, read_csr(sie) | SIE_SEIE | SIE_STIE); // 不启用核间中断（暂时） TODO
 
   // init timing. added @lab1_3
   // lab1_challenge1 为了调试便利，禁用了外部时钟中断：
@@ -143,5 +163,12 @@ void m_start(uintptr_t hartid, uintptr_t dtb) {
 
   // switch to supervisor mode (S mode) and jump to s_start(), i.e., set pc to
   // mepc
-  asm volatile("mret");
+  // asm volatile("mret");
+	
+	sprint("In m_start, hartid:%d\n", hartid);
+  write_tp(hartid);
+
+	write_csr(stvec, (uint64)start_trap);
+
+	s_start();
 }

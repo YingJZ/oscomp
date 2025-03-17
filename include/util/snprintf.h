@@ -7,5 +7,6 @@
 #include <sys/types.h>
 
 int vsnprintf(char* out, size_t n, const char* s, va_list vl);
+int sprintf(char *out, const char *s, ...);
 
 #endif

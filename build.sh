@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Create build directory if it doesn't exist
-# rm -rf build
+rm -rf build
 mkdir -p build
 cd build
 

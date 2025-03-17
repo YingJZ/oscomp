@@ -7,6 +7,7 @@
 #include <util/list.h>
 #include <util/spinlock.h>
 #include <kernel/mm/pagetable.h>
+#include <kernel/dev/dtb.h>
 
 // Forward declarations
 struct address_space;

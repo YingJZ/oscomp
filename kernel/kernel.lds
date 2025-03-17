@@ -15,9 +15,15 @@ SECTIONS
   . = 0x80200000;
   _ftext = .;
 
+	/* 首先放置入口点段 */
+  .text.entry : {
+    *(.text.entry)
+  }
+
   /* text: Program code section */
   .text : 
   {
+		. = ALIGN(4); /* 4 字节对齐 */
     *(.text)
     *(.text.*)
     *(.gnu.linkonce.t.*)

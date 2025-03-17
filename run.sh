@@ -1,3 +1,7 @@
 #!/bin/bash
->build/debug/logs.txt
-spike build/bin/riscv-pke app_exec >> build/debug/logs.txt
+qemu-system-riscv64 \
+  -machine virt \
+  -nographic \
+  -bios default \
+  -kernel build/bin/riscv-pke \
+  -append "app_exec"

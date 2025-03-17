@@ -17,7 +17,8 @@
 			"list.h": "c",
 			"config.h": "c",
 			"dts_parse.h": "c",
-			"spike_utils.h": "c"
+			"spike_utils.h": "c",
+			"error.h": "c"
 		},
     "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyFunction": true,
     "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyType": true,

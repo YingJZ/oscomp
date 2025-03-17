@@ -9,6 +9,15 @@
 
 #include "util/snprintf.h"
 
+/**
+ * @brief 将格式化的数据写入一个字符串缓冲区
+ *
+ * @param out 输出字符串缓冲区，用于存储格式化后的结果
+ * @param n 缓冲区大小，防止缓冲区溢出
+ * @param s 格式化字符串, 包含普通文本和格式说明符（如 %d、%x 等）
+ * @param vl 可变参数列表
+ * @return 格式化后的字符串的长度
+ */
 int32 vsnprintf(char* out, size_t n, const char* s, va_list vl) {
   bool format = false;
   bool longarg = false;
@@ -81,4 +90,12 @@ int32 vsnprintf(char* out, size_t n, const char* s, va_list vl) {
   else if (n)
     out[n - 1] = 0;
   return pos;
+}
+
+int32 sprintf(char *out, const char *s, ...) {
+	va_list vl;
+	va_start(vl, s);
+	int32 ret = vsnprintf(out, 0x7fffffff, s, vl);
+	va_end(vl);
+	return ret;
 }

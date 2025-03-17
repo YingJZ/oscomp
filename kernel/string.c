@@ -188,3 +188,21 @@ char *strncpy(char *dest, const char *src, size_t n) {
 	
 	return dest;
 }
+
+/**
+ * strncmp - 比较两个字符串的前n个字符
+ * @p: 字符串1
+ * @q: 字符串2
+ * @n: 比较的字符数
+ * 
+ * 返回值: 0表示相等，非0表示不等
+ */
+int strncmp(const char *p, const char *q, size_t n) {
+	while (n > 0 && *p && *p == *q) {
+		n--, p++, q++;
+	}
+	if (n == 0 || (*p == 0 && *q == 0)) {
+		return 0;
+	}
+	return (char)*p - (char)*q;
+}

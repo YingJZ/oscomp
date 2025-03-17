@@ -75,9 +75,9 @@ void init_page_manager() {
   // 空闲内存起始地址必须页对齐
   paddr_t free_mem_start_addr = ROUNDUP(kernel_end, PAGE_SIZE);
 
-  extern uint64 spike_mem_size; // 在spike_memory.c中获取
+	extern struct MemInfo memInfo; // 从 dtb.c 中获取物理内存信息
   mem_base_addr = KERN_BASE;
-  mem_size = ROUNDDOWN(MIN(PKE_MAX_ALLOWABLE_RAM, spike_mem_size), PAGE_SIZE);
+  mem_size = ROUNDDOWN(MIN(PKE_MAX_ALLOWABLE_RAM, memInfo.size), PAGE_SIZE);
   assert(mem_size > pke_kernel_size);
   sprint("Free physical memory address: [0x%lx, 0x%lx) \n", free_mem_start_addr,
          DRAM_BASE + mem_size);
