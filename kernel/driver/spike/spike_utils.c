@@ -12,7 +12,7 @@
 #include <spike_interface/spike_utils.h>
 #include <spike_interface/spike_file.h>
 
-#include <qemu/sbi.h>
+#include <kernel/dev/sbi.h>
 
 //=============    encapsulating htif syscalls, invoking Spike functions    =============
 long frontend_syscall(long n, __uint64_t a0, __uint64_t a1, __uint64_t a2, __uint64_t a3, __uint64_t a4,

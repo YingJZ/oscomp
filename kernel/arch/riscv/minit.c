@@ -7,7 +7,7 @@
 #include <util/sync_utils.h>
 #include <spike_interface/spike_utils.h>
 #include <kernel/types.h>
-#include <qemu/sbi.h>
+#include <kernel/dev/sbi.h>
 #include <kernel/dev/dtb.h>
 
 //
