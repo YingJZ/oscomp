@@ -1,23 +1,24 @@
 {
-	"configurations": [
-			{
-					"name": "riscv-pke",
-					"includePath": [
-							"${workspaceFolder}/include",
-							"${workspaceFolder}/lib",
-							"${workspaceFolder}/spike_interface",
-							"${workspaceFolder}",
-							"/usr/riscv64-linux-gnu/include"
-					],
-					"defines": [
-							"__riscv",
-							"__riscv64"
-					],
-					"compilerPath": "/usr/bin/riscv64-unknown-elf-gcc",
-					"cStandard": "gnu11",
-					"cppStandard": "gnu++17",
-					"intelliSenseMode": "gcc-x64"
-			}
-	],
-	"version": 4
+    "configurations": [
+        {
+            "name": "riscv-pke",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/lib",
+                "${workspaceFolder}/spike_interface",
+                "${workspaceFolder}",
+                "/usr/local/riscv64-unknown-elf/include/",
+                "/usr/riscv64-linux-gnu/include"
+            ],
+            "defines": [
+                "__riscv",
+                "__riscv64"
+            ],
+            "compilerPath": "/usr/bin/riscv64-unknown-elf-gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
 }
