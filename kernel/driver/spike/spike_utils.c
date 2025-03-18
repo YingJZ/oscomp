@@ -8,7 +8,7 @@
 #include <util/spinlock.h>
 #include <spike_interface/spike_htif.h>
 #include <kernel/types.h>
-#include <util/snprintf.h>
+#include "util/printf.h"
 #include <spike_interface/spike_utils.h>
 #include <spike_interface/spike_file.h>
 
@@ -39,6 +39,7 @@ long frontend_syscall(long n, __uint64_t a0, __uint64_t a1, __uint64_t a2, __uin
   return ret;
 }
 
+/*
 //===============    Spike-assisted printf, output string to terminal    ===============
 static uintptr_t mcall_console_putchar(__uint8_t ch) {
   if (htif) {
@@ -86,7 +87,7 @@ void sprint(const char* s, ...) {
 
   va_end(vl);
 }
-
+*/
 //===============    Spike-assisted termination, panic and assert    ===============
 void poweroff(uint16_t code) {
   assert(htif);

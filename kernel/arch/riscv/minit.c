@@ -9,6 +9,7 @@
 #include <kernel/types.h>
 #include <kernel/dev/sbi.h>
 #include <kernel/dev/dtb.h>
+#include <util/printf.h>
 
 //
 // global variables are placed in the .data section.

@@ -3,7 +3,7 @@
 #include "kernel/dev/dtb.h"
 #include "util/error.h"
 #include "util/log.h"
-#include "util/snprintf.h" // #include "lib/printf.h"
+#include "util/printf.h"
 #include "util/string.h"
 // #include "mm/memlayout.h"
 // #include "param.h"
@@ -17,7 +17,7 @@ struct MemInfo memInfo;
 
 static void swapChar(void *a, void *b) {
 	char c = *(char *)a;
-	*(char *)a = *(char *)b;
+*(char *)a = *(char *)b;
 	*(char *)b = c;
 }
 

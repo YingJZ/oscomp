@@ -3,6 +3,7 @@
 #include <spike_interface/spike_utils.h>
 #include <spike_interface/spike_file.h>
 #include <util/string.h>
+#include <util/printf.h>
 
 // 中断原因码
 #define IRQ_M_SOFT    3  // 机器模式软件中断

@@ -18,7 +18,10 @@
 			"config.h": "c",
 			"dts_parse.h": "c",
 			"spike_utils.h": "c",
-			"error.h": "c"
+			"error.h": "c",
+			"riscv.h": "c",
+			"printf.h": "c",
+			"interface.h": "c"
 		},
     "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyFunction": true,
     "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyType": true,
